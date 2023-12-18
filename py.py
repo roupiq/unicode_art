@@ -1,7 +1,9 @@
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
-# import video2image
+import cv2
+import os
+import time
 
 images = {'selfie':'selfie.jpg','toaster':'silver-toaster.png', 'oi':'logo-oi-kolorowe_1.png','madelina':'madeline.jpg','toaster':'silver-toaster.png','rick':'rick.jpg', 'tf':'tftf.png', 'antek':'antek.jpg', 'monke':'monke.jpg', 'shrek':'shrek.jpeg'}
 GREYS = "████████████████████████████████████████████████████████████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╣╣╢ҊǄǋӁ║ӸҖǱЙ№╪Ẅᾗᾮﬂ∏▒ΩῺﬁÅῸ╝ῧ╥╨╧￼⅚⅞�ύ╜⅕‡◊≥Ύ≠│═╛░ӷѓ≈¿™┘₈₀„₉₆¬∕℮─:₇›−…––˝∙῀῾ιιιι   "
@@ -261,17 +263,18 @@ GREYS2 = ['███████████████████████
 "„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„,,,,,,,,,,,___……………….......ιιιιιιιι       ",
 "„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„,,,,,,,,,,_____…………¸¸¸¸¸¸¸ιιιιιιιιι       ",
 "„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„„,,,,,,,,,_______……¸¸¸¸¸˛¸¸ιιιιιιιιι       ",]
+invert = True
 
 DC_MAX = 2000
 
 shades = len(GREYS2)
-scale = 256
+scale = 53
 
 def showImage(image):
     plt.imshow(image)
     plt.show()
 
-image_name = 'shrek'
+image_name = 'shreck.jpg'
 if image_name not in images:
     image_path = image_name
 else:
@@ -286,7 +289,6 @@ def image2text(img):
     # showImage(img)
 
     matrix = np.array(img)
-    reverse = True
 
     text = ""
     last_row = []
@@ -299,7 +301,7 @@ def image2text(img):
 
             grey1 = (int(pixel1[0])+int(pixel1[1])+int(pixel1[2]))//3
             grey2 = (int(pixel2[0])+int(pixel2[1])+int(pixel2[2]))//3
-            if reverse:
+            if invert:
                 grey1 = 255 - grey1
                 grey2 = 255 - grey2
             # grey = (128 + grey // 2)
@@ -315,19 +317,68 @@ def image2text(img):
         text += "\n"
     return text
 
-text = image2text(img)
-print(text)
+# text = image2text(img)
+# print(text)
 
-with open(f'outs/{image_name}-{scale}.txt', 'w') as f:
-    f.write(text)
+# with open(f'outs/{image_name}-{scale}.txt', 'w') as f:
+#     f.write(text)
 
-# use opencv to do the job
 
-video_path = 'bad_apple.mp4'
-# creating jpgs from video
+def renderImage(video_path = 'bad_apple.mp4'):
+    # creating jpgs from video
 
-# video2image.Video2Images(video_filepath=video_path,
-#              out_dir="jpegs")
+    vidcap = cv2.VideoCapture(video_path)
+    success,image = vidcap.read()
+    count = 0
+    while success:
+        cv2.imwrite(f"jpegs/b{count}.jpg", image)     # save frame as JPEG file      
+
+        imgPIL = f"jpegs/b{count}.jpg"
+        print(image2text(Image.open(imgPIL)))
+        # print('xd')
+        success,image = vidcap.read()
+
+        # os.system('clear')
+        time.sleep(0.02)
+        # print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+
+        count += 1
+    return
+
+def video2text(video_path = 'bad_apple.mp4'):
+    video_name = video_path.replace('.mp4', '')
+
+    # creating jpgs from video
+    vidcap = cv2.VideoCapture(video_path)
+    success,image = vidcap.read()
+    count = 0
+    text = []
+    while success:
+        cv2.imwrite(f"jpegs/b{count}.jpg", image)     # save frame as JPEG file      
+
+        imgPIL = f"jpegs/b{count}.jpg"
+        frame = image2text(Image.open(imgPIL))
+        if count%20 == 0:
+            print(frame)
+        text.append(frame)
+        # print('xd')
+        success,image = vidcap.read()
+
+        # os.system('clear')
+        # time.sleep(0.02)
+        # print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+
+        count += 1
+    code = f'import time\n{video_name} = {text}\nfor frame in {video_name}:\n\tprint(frame)\n\ttime.sleep(0.02)'
+    with open(f'{video_name}.py', 'w') as f:
+        f.write(str(code))
+    
+    print()
+
+
+text = video2text('bad_apple.mp4')
+
+# video2text('Mandelbrot Zoom Sequence.mp4')
 
 """
 
